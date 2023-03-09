@@ -1,0 +1,4 @@
+projects:
+  - key: #Enter name of your LaunchDarkly project
+    aliases:
+      - type: camelcase #needed because application is React based

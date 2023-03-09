@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "eslint-plugin-react-hooks": "^5.0.0-next-e1dd0a2f5-20221115"
+  }
+}

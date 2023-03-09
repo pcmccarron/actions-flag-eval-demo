@@ -1,0 +1,134 @@
+  on:
+    push:
+      branches: 
+      - "main"
+
+  concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+  jobs:
+    # optional job, this enables code references and requires a LD Access Token
+    ld-code-refs: 
+      name: LaunchDarkly Code References
+      runs-on: ubuntu-latest
+      steps:
+      - 
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 11 
+      - 
+        name: LaunchDarkly Code References
+        uses: launchdarkly/find-code-references@v2.9.1
+        with:
+        # Make sure you create an Access Token and add it here 
+          accessToken: ${{ secrets.LD_ACCESS_TOKEN }} 
+
+    # flag evaluation job
+    ld-flags: 
+      name: LaunchDarkly Flag Evaluation
+      runs-on: ubuntu-latest
+      outputs: 
+       output1: ${{steps.flags.outputs.gha-flag}} # make sure you update with the flag key you listed below, required for future steps
+      steps: 
+      -
+        name: Evaluate flags
+        id: flags
+        uses: launchdarkly/gha-flags@main
+        with:
+          # make sure you have your SDK key saved
+          sdk-key: ${{ secrets.LD_SDK_KEY }}
+          #list your flag keys that you want to retrive below
+          flags: |
+            gha-flag
+        #env:
+         # you can add custom context attributes here, using the LD_ prefix
+
+    # docker build and push job      
+    docker:
+      name: Build the new Docker Image
+      needs: ld-flags 
+      runs-on: ubuntu-latest
+      steps:
+      -
+        name: Checkout GitHub repo 
+        uses: actions/checkout@v3
+      - 
+        name: set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:v0.10.6
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_TOKEN }} # Make sure you have created this secret or build will likely fail, can also use Docker login
+      - 
+        #This is the first flag evaluation step, if you are using a boolean or a different string value, be sure to update this line with the flag value you want
+        if: needs.ld-flags.outputs.output1 == 'dev-build' 
+        name: Build and Push
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          platforms: linux/amd64
+          # Build arguments for the frontend image, be sure you have the client side key and add any other configs that you would like
+          build-args: |
+            "VITE_LD_CLIENT_KEY=${{secrets.VITE_LD_CLIENT_KEY}}"
+          push: true
+          tags: |
+            ghcr.io/pcmccarron/demo-app-dev-build:${{github.sha}}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      -
+      # Second condition for if the flag is returning a different value than above, update as needed 
+        if: needs.ld-flags.outputs.output1 == 'prod-build'
+        run: echo "sorry the flag is currently set to ${{needs.ld-flags.outputs.output1}}" 
+
+    # Job to deploy to Kubernetes
+    k8s-deploy:
+      name: Deploy App to Kubernetes
+      runs-on: ubuntu-latest
+      needs: [docker, ld-flags]
+      steps:
+        -
+          name: Checkout GitHub repo 
+          uses: actions/checkout@v3
+        -
+        # Only applicable if you are using EKS cluster, can either use Access/Secret Key combo or IAM, please consult AWS docs 
+          name: Log into AWS 
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-region: us-east-2
+            aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+            aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        -
+        # Make sure you create a secret with the Kubeconfig file, needed for deploy
+          name: Get Kubeconfig
+          uses: azure/k8s-set-context@v1
+          with: 
+            method: kubeconfig
+            kubeconfig: ${{secrets.KUBE_CONFIG}}
+          id: setcontext
+        -
+        # This step only runs if the flag is the right value and should match value for Docker build/push, if not, you may get a deployment error in your cluster for a bad image
+          if: needs.ld-flags.outputs.output1 == 'dev-build'
+          name: Deploy to Kubernetes
+          uses: Azure/k8s-deploy@v4
+          # Again, update as needed, this action file tags the new image build with the session SHA value, but you can update that if you would prefer something else
+          with:
+            namespace: default
+            manifests: |
+             application/frontend.yaml
+            images: |
+              ghcr.io/pcmccarron/demo-app-dev-build:${{github.sha}}
+        - 
+        # Like above, this condition runs if the flag is not returning the correct value, update as needed 
+          if: needs.ld-flags.output.output1 == 'prod-build'
+          run: echo "We don't have a new image to deploy"
