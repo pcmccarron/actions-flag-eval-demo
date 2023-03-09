@@ -28,9 +28,7 @@ For this demo you will need the following environment:
 
 Code base has the following flags in it, if these don't existing in your LaunchDarkly project, you will likely get an error.
 
-#### Flag evaluation flag
-
-Flag that the action references
+### Flag evaluation flag
 
 ##### Enable Builds
 
@@ -38,9 +36,7 @@ Flag that the action references
 - **type:** string
 - **variations:** dev-build, prod-build
 
-#### Application flags
-
-Flags in the frontend code itself
+### Application flags
 
 ##### Image Flag
 
