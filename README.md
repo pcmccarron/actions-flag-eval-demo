@@ -2,7 +2,7 @@
 
 This is a demo repository for testing LaunchDarkly's flag evaluations with GitHub Actions. The repository contains a PERN to-do application (Postgres, Express, React, Node) that can be deployed into a Kubernetes cluster.
 
-## Secrets:
+## Secrets
 
 For this demo to work you will need to set up the following GitHub Secrets
 
@@ -14,7 +14,7 @@ For this demo to work you will need to set up the following GitHub Secrets
 - **AWS_SECRET_ACCESS_KEY** - Secret key if you are using EKS, update accordingly for the cluster you are using
 - **LD_ACCESS_TOKEN** (optional) - Create an access token if you would like to use Code References (otherwise that action step will fail)
 
-## How to set up:
+## How to set up
 
 For this demo you will need the following environment:
 
