@@ -40,8 +40,6 @@ const theme = createTheme({
 			});
 	}, []);
 
-	console.log(login);
-
 	if (error) {
 		return (
 			<ThemeProvider theme={theme}>
