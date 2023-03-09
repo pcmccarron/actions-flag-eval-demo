@@ -30,27 +30,13 @@ Code base has the following flags in it, if these don't existing in your LaunchD
 
 #### Flag evaluation flag
 
-- Enable Builds
-  flag-key: _gha-flag_
-  type: string
-  variations: dev-build, prod-build
+- **name:** Enable Builds **flag-key:** _gha-flag_ **type:** string **variations:** dev-build, prod-build
 
 #### Application flags
 
-- Image Flag
-  flag-key: _image_
-  type: boolean
-  variations: true, false
-
-- Background
-  flag-key: _background_
-  type: string
-  variations: ./ld-bg-purple.png, ./ld-bg-blue.png, ./ld-bg-red.png, ./ld-bg-gray.png
-
-- Dark Mode
-  flag-key: _darkMode_
-  type: boolean
-  variations: true, false
+- **name:** Image Flag **flag-key:** _image_ **type:** boolean **variations:** true, false
+- **name:** Background **flag-key:** _background_ **type:** string **variations:** ./ld-bg-purple.png, ./ld-bg-blue.png, ./ld-bg-red.png, ./ld-bg-gray.png
+- **name:** Dark Mode **flag-key:** _darkMode_ **type:** boolean **variations:** true, false
 
 ### How to run the demo
 
