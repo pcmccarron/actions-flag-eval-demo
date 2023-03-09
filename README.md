@@ -30,7 +30,7 @@ Code base has the following flags in it, if these don't existing in your LaunchD
 
 ### Flag evaluation flag
 
-##### Enable Builds
+#### Enable Builds
 
 - **flag-key:** gha-flag
 - **type:** string
@@ -38,19 +38,19 @@ Code base has the following flags in it, if these don't existing in your LaunchD
 
 ### Application flags
 
-##### Image Flag
+#### Image Flag
 
 - **flag-key:** image
 - **type:** boolean
 - **variations:** true, false
 
-##### Background
+#### Background
 
 - **flag-key:** background
 - **type:** string
 - **variations:** ./ld-bg-purple.png, ./ld-bg-blue.png, ./ld-bg-red.png, ./ld-bg-gray.png
 
-##### Dark Mode
+#### Dark Mode
 
 - **flag-key:** darkMode
 - **type:** boolean
