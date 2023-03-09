@@ -1,6 +1,6 @@
 # Using Flag Evaluations with GitHub Actions
 
-This is a demo repository for testing LaunchDarkly's flag evaluations with GitHub Actions. The repository contains a PERN to-do application (Postgres, Express, React, Node) that can be deployed into a Kubernetes cluster. It is recommended that you clone this repository as it does not contain the necessary secrets to run.
+This is a demo repository for testing [LaunchDarkly's flag evaluations with GitHub Actions](https://docs.launchdarkly.com/integrations/github-actions-flag-evaluations). The repository contains a PERN to-do application (Postgres, Express, React, Node) that can be deployed into a Kubernetes cluster. It is recommended that you clone this repository as it does not contain the necessary secrets to run.
 
 ## Secrets
 
